@@ -31,6 +31,7 @@ const gameContainer = document.getElementById("game-container");
 const scoreDisplay = document.getElementById("score");
 const timeDisplay = document.getElementById("time");
 const timerPanel = timeDisplay.closest(".timer");
+const globalWarningTimer = document.getElementById("global-warning-timer");
 const durationSelect = document.getElementById("duration-select");
 const startBtn = document.getElementById("start-btn");
 const gameOverModal = document.getElementById("game-over-modal");
@@ -236,24 +237,12 @@ function updateHud() {
 
 function updateLowTimeWarning() {
   const isLowTime = gameActive && timeLeft <= 5;
-  const warningLevel = Math.max(0, 6 - timeLeft);
-  const warningSpeed = `${Math.max(0.5, 1.4 - warningLevel * 0.18)}s`;
-  const timerScale = String(1.08 + warningLevel * 0.05);
-  const flashOpacity = String(Math.min(0.26, 0.08 + warningLevel * 0.035));
 
-  gameContainer.classList.toggle("time-warning", isLowTime);
+  document.body.classList.toggle("time-warning-global", isLowTime);
   timerPanel.classList.toggle("low-time", isLowTime);
 
-  if (isLowTime) {
-    gameContainer.style.setProperty("--warning-speed", warningSpeed);
-    gameContainer.style.setProperty("--warning-opacity", flashOpacity);
-    timerPanel.style.setProperty("--warning-speed", warningSpeed);
-    timerPanel.style.setProperty("--timer-scale", timerScale);
-  } else {
-    gameContainer.style.removeProperty("--warning-speed");
-    gameContainer.style.removeProperty("--warning-opacity");
-    timerPanel.style.removeProperty("--warning-speed");
-    timerPanel.style.removeProperty("--timer-scale");
+  if (globalWarningTimer) {
+    globalWarningTimer.textContent = String(Math.max(0, timeLeft));
   }
 }
 

@@ -57,6 +57,49 @@ body {
     font-family: "Avenir Next", "Trebuchet MS", sans-serif;
 }
 
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(245, 64, 44, 0.66);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+}
+
+body.time-warning-global::after {
+    --pulse-opacity-min: 0;
+    --pulse-opacity-max: 0.8;
+    --pulse-scale-min: 1;
+    --pulse-scale-max: 1;
+    animation: warningPulse var(--warning-speed, 0.9s) ease-in-out infinite;
+}
+
+#global-warning-timer {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(5rem, 22vw, 13rem);
+    font-weight: 900;
+    line-height: 0.9;
+    color: rgba(245, 64, 44, 0.96);
+    text-shadow: 0 8px 26px rgba(255, 255, 255, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 60;
+}
+
+body.time-warning-global #global-warning-timer {
+    --pulse-opacity-min: 0.62;
+    --pulse-opacity-max: 1;
+    --pulse-translate-x: -50%;
+    --pulse-translate-y: -50%;
+    --pulse-scale-min: 0.97;
+    --pulse-scale-max: 1.08;
+    animation: warningPulse var(--warning-speed, 0.9s) ease-in-out infinite;
+}
+
 .game-wrapper {
     position: relative;
     display: flex;
@@ -189,7 +232,11 @@ body {
 }
 
 .timer.low-time {
-    animation: timerPulse var(--warning-speed, 0.55s) ease-in-out infinite alternate;
+    --pulse-opacity-min: 1;
+    --pulse-opacity-max: 1;
+    --pulse-scale-min: 1;
+    --pulse-scale-max: var(--timer-scale, 1.14);
+    animation: warningPulse var(--warning-speed, 0.9s) ease-in-out infinite;
     background: linear-gradient(135deg, rgba(255, 243, 238, 0.98), rgba(255, 225, 214, 0.94));
     box-shadow: inset 0 0 0 1px rgba(245, 64, 44, 0.18), 0 0 0 4px rgba(245, 64, 44, 0.08);
 }
@@ -248,7 +295,6 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(245, 64, 44, 0.3);
     opacity: 0;
     pointer-events: none;
 }
@@ -267,7 +313,7 @@ body {
 }
 
 #game-container.time-warning::after {
-    animation: urgentFlash var(--warning-speed, 1.3s) ease-in-out infinite;
+    animation: none;
 }
 
 .water-drop {
@@ -450,21 +496,14 @@ body {
     }
 }
 
-@keyframes timerPulse {
-    from {
-        transform: scale(1);
-    }
-    to {
-        transform: scale(var(--timer-scale, 1.14));
-    }
-}
-
-@keyframes urgentFlash {
+@keyframes warningPulse {
     0%, 100% {
-        opacity: 0;
+        opacity: var(--pulse-opacity-min, 1);
+        transform: translate(var(--pulse-translate-x, 0), var(--pulse-translate-y, 0)) scale(var(--pulse-scale-min, 1));
     }
     50% {
-        opacity: 1;
+        opacity: var(--pulse-opacity-max, 1);
+        transform: translate(var(--pulse-translate-x, 0), var(--pulse-translate-y, 0)) scale(var(--pulse-scale-max, 1));
     }
 }
 
