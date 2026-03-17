@@ -29,6 +29,9 @@ Fonts:
     --sand: #fff7db;
     --panel: rgba(255, 255, 255, 0.84);
     --panel-border: rgba(255, 255, 255, 0.55);
+    --mobile-frame-width: 414px;
+    --mobile-frame-height: 896px;
+    --mobile-scale: 1;
 }
 
 * {
@@ -100,15 +103,24 @@ body.time-warning-global #global-warning-timer {
     animation: warningPulse var(--warning-speed, 0.9s) ease-in-out infinite;
 }
 
+.mobile-stage {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    width: min(960px, 100%);
+    height: 100%;
+    max-height: calc(100svh - 24px);
+}
+
 .game-wrapper {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: clamp(8px, 1.5vh, 16px);
-    width: min(960px, 100%);
+    width: 100%;
     height: 100%;
-    max-height: calc(100svh - 24px);
+    max-height: 100%;
     padding: clamp(14px, 2.2vh, 24px);
     border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 28px;
@@ -610,6 +622,57 @@ body.time-warning-global #global-warning-timer {
     margin-bottom: 24px;
 }
 
+body.mobile-xr-layout {
+    align-items: center;
+    padding: 8px;
+}
+
+body.mobile-xr-layout .mobile-stage {
+    width: calc(var(--mobile-frame-width) * var(--mobile-scale));
+    height: calc(var(--mobile-frame-height) * var(--mobile-scale));
+    max-width: calc(100vw - 16px);
+    max-height: calc(100svh - 16px);
+    align-items: flex-start;
+    overflow: visible;
+}
+
+body.mobile-xr-layout .game-wrapper {
+    width: var(--mobile-frame-width);
+    height: var(--mobile-frame-height);
+    max-height: none;
+    flex: 0 0 auto;
+    padding: 12px;
+    border-radius: 22px;
+    transform: scale(var(--mobile-scale));
+    transform-origin: top center;
+}
+
+body.mobile-xr-layout .score-panel,
+body.mobile-xr-layout .goal-panel {
+    grid-template-columns: 1fr;
+}
+
+body.mobile-xr-layout .controls-hint-desktop {
+    display: none;
+}
+
+body.mobile-xr-layout .controls-hint-mobile {
+    display: block;
+}
+
+body.mobile-xr-layout #game-container {
+    min-height: 260px;
+    border-radius: 22px;
+}
+
+body.mobile-xr-layout #bucket {
+    bottom: 14px;
+}
+
+body.mobile-xr-layout .modal-content {
+    width: min(360px, calc(100% - 28px));
+}
+
 @keyframes dropFall {
     from {
         transform: translateY(0);
@@ -690,6 +753,10 @@ body.time-warning-global #global-warning-timer {
 @media (max-width: 700px) {
     body {
         padding: 8px;
+    }
+
+    .mobile-stage {
+        max-height: calc(100svh - 16px);
     }
 
     .game-wrapper {

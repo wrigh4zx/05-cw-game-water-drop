@@ -1,5 +1,7 @@
 const DROP_SPAWN_INTERVAL = 850;
 const BUCKET_SPEED = 12;
+const MOBILE_FRAME_WIDTH = 414;
+const MOBILE_FRAME_HEIGHT = 896;
 
 const GAME_MODE_OBJECTIVE = "objective";
 const GAME_MODE_FREEPLAY = "freeplay";
@@ -51,6 +53,7 @@ let bucketX = 0;
 let bucketVelocity = 0;
 let pointerTargetX = null;
 let lastFrameTime = performance.now();
+let mobileViewportScale = 1;
 
 const keys = {
   left: false,
@@ -475,7 +478,7 @@ function handlePointerMove(event) {
 
   const containerRect = gameContainer.getBoundingClientRect();
   const bucketWidth = bucket.offsetWidth;
-  const relativeX = event.clientX - containerRect.left;
+  const relativeX = (event.clientX - containerRect.left) / getViewportScale();
   const maxX = gameContainer.clientWidth - bucketWidth;
 
   pointerTargetX = clamp(relativeX - bucketWidth / 2, 0, maxX);
@@ -494,7 +497,7 @@ function clearPointerTarget(event) {
 }
 
 function handleResize() {
-  centerBucket();
+  updateMobileViewportScale();
 }
 
 function centerBucket() {
@@ -624,6 +627,42 @@ function setStartButtonState(isRunning) {
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
+}
+
+function shouldUseMobileViewportFrame() {
+  const isCoarsePointerDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  const isPhoneSizedViewport = Math.min(window.innerWidth, window.innerHeight) <= 900;
+
+  return isCoarsePointerDevice && isPhoneSizedViewport;
+}
+
+function getViewportScale() {
+  return document.body.classList.contains("mobile-xr-layout") ? mobileViewportScale : 1;
+}
+
+function updateMobileViewportScale() {
+  const shouldUseMobileFrame = shouldUseMobileViewportFrame();
+
+  document.body.classList.toggle("mobile-xr-layout", shouldUseMobileFrame);
+
+  if (!shouldUseMobileFrame) {
+    mobileViewportScale = 1;
+    document.documentElement.style.setProperty("--mobile-scale", "1");
+    centerBucket();
+    return;
+  }
+
+  const availableWidth = Math.max(1, window.innerWidth - 16);
+  const availableHeight = Math.max(1, window.innerHeight - 16);
+
+  mobileViewportScale = Math.min(
+    availableWidth / MOBILE_FRAME_WIDTH,
+    availableHeight / MOBILE_FRAME_HEIGHT,
+    1,
+  );
+
+  document.documentElement.style.setProperty("--mobile-scale", mobileViewportScale.toFixed(4));
+  centerBucket();
 }
 
 function isColliding(firstRect, secondRect) {
@@ -819,5 +858,6 @@ currentGameMode = getSelectedMode();
 selectedTimeLimit = getSelectedDuration();
 applyModeSelectionRules();
 updateModeDisplays();
+updateMobileViewportScale();
 resetBoard();
 requestAnimationFrame(gameLoop);
